@@ -1,0 +1,59 @@
+﻿@using AppHarbuz.Domain.Entities;
+@model TaskApp
+
+@{
+    var timeLeft = Model.ExpiredDate - DateTime.Now;
+    var isShowTimeLeft = timeLeft <= TimeSpan.FromHours(4) && timeLeft.TotalSeconds > 0;
+}
+
+@functions{
+    string timeLeftToFormat(TimeSpan timeLeft)
+    {
+        return $"{timeLeft.Hours}h. {timeLeft.Minutes}m.";
+    }
+}
+
+<div class="fa-tasks shadow-sm p-3 mb-5 bg-body-tertiary rounded d-flex justify-content-between align-items-center" data-id="@Model.Id">
+    <div class="form-check d-flex align-items-center">
+        <form asp-controller="Home" asp-action="UpdateCompleted" method="post" class="me-3">
+            @Html.HiddenFor(m => m.Id)
+            <input class="form-check-input"
+                   style="height: 25px; width: 25px;"
+                   type="checkbox"
+                   asp-for="IsCompleted"
+                   onchange="this.form.submit()"
+                   id="IsCompleted-@Model.Id" />
+        </form>
+
+        <div class="task-name-container d-flex align-items-center">
+            <span class="task-name" id="taskName-@Model.Id">@Model.Name</span>
+
+            <form asp-controller="Home" asp-action="UpdateName" method="post" class="d-none edit-form ms-3">
+                @Html.HiddenFor(m => m.Id)
+                <input type="text" class="form-control" name="name" value="@Model.Name" />
+                <button type="submit" class="btn btn-success btn-sm ms-2">
+                    <i class="fa-solid fa-check"></i>
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm cancel-edit">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </form>
+        </div>
+
+        <span class="badge text-bg-warning ms-lg-5 @(!isShowTimeLeft ? "d-none" : "")">
+            <i class="fa-solid fa-hourglass-half me-2"></i> @timeLeftToFormat(timeLeft)
+        </span>
+    </div>
+
+    <div class="d-flex align-items-center">
+        <button class="btn text-secondary edit-task" data-id="@Model.Id">
+            <i class="fa-solid fa-pencil"></i>
+        </button>
+        <form asp-controller="Home" asp-action="Delete" method="post" class="ms-3">
+            @Html.HiddenFor(m => m.Id)
+            <button type="submit" class="btn text-danger">
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
+        </form>
+    </div>
+</div>
